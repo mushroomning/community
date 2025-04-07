@@ -253,26 +253,6 @@ $(function () {
         })
 
         /**
-         * 查看登记信息
-         */
-        $("#toAccessPage").click(function () {
-            var userId = $("#userId").val();
-            // 验证登录
-            if (verifyLogin() == -1) {
-                return;
-            }
-            // 点击登录弹出登录窗
-            layer.open({
-                type: 2,
-                title: "登记信息",
-                shadeClose: true,
-                shade: 0.5,
-                area: ['1200px', '700px'],
-                content: "webPage/toAccessPage?userId=" + userId,
-            });
-        })
-
-        /**
          * 查看我的评价
          */
         $("#meComment").click(function () {
@@ -371,141 +351,26 @@ $(function () {
         })
 
         /**
-         * 健康码上传
+         * 活动室预约按钮
          */
-        var uploadInst = upload.render({
-            elem: '#test1'
-            , url: 'api/file/upload/image'  // 图片上传接口
-            , before: function (obj) {
-                //预读本地文件示例，不支持ie8
-                obj.preview(function (index, file, result) {
-                    $('#demo1').attr('src', result); //图片链接（base64）
-                });
-
-                layer.msg('上传中', {icon: 16});
-            }
-            , done: function (res) {
-                //如果上传失败
-                if (res.code > 0) {
-                    return layer.msg('上传失败');
-                }
-                //上传成功的一些操作
-                layer.msg('上传完毕', {icon: 1})
-                $('#healthCodePath').val(res.msg);
-                $('#demoText').html('')
-            }
-            , error: function () {
-                //演示失败状态，并实现重传
-                $('#demoText').html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>');
-            }
-        });
-
-        /**
-         * 行程卡上传
-         */
-        var uploadInst2 = upload.render({
-            elem: '#test2'
-            , url: 'api/file/upload/image'  // 图片上传接口
-            , before: function (obj) {
-                //预读本地文件示例，不支持ie8
-                obj.preview(function (index, file, result) {
-                    $('#demo2').attr('src', result); //图片链接（base64）
-                });
-
-                layer.msg('上传中', {icon: 16});
-            }
-            , done: function (res) {
-                //如果上传失败
-                if (res.code > 0) {
-                    return layer.msg('上传失败');
-                }
-                //上传成功的一些操作
-                layer.msg('上传完毕', {icon: 1})
-                $('#travelCodePath').val(res.msg);
-                $('#demoText2').html('')
-            }
-            , error: function () {
-                //演示失败状态，并实现重传
-                $('#demoText2').html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>');
-            }
-        });
-
-        /**
-         * 登记按钮
-         */
-        $("#accessBtn").click(function () {
+        $("#activityRoom").click(function () {
             var userId = $("#userId").val();
+            var userName = $("#userName").val();
             // 验证登录
             if (verifyLogin() == -1) {
                 return;
             }
-            // 判断是否为空
-            var userName = $("input[name='accessUserName']").val()
-            var phone = $("input[name='accessPhone']").val()
-            var type = $("select[name='type']").val()
-            var type1 = $("select[name='type1']").val()
-            var type2 = $("select[name='type2']").val()
-            var desc = $("textarea[name='desc']").val()
-            var healthCodePath = $("input[name='healthCodePath']").val()
-            var travelCodePath = $("input[name='travelCodePath']").val()
-            if (!healthCodePath || !travelCodePath) {
-                layer.confirm("请务必上传健康码和行程码", {
-                    btn: ['确定'] //按钮
-                    , icon: 5
-                    , anim: 6
-                    , title: '错误信息'
-                }, function (index) {
-                    layer.close(index)
-                })
-                return;
-            }
-            // 新增信息
-            var jsonObj = {
-                "userId": userId,
-                "userName": userName,
-                "phone": phone,
-                "type": type,
-                "type1": type1,
-                "type2": type2,
-                "desc": desc,
-                "healthCodePath": healthCodePath,
-                "travelCodePath": travelCodePath,
-            }
-            console.log(jsonObj)
-            $.ajax({
-                url: "accessVisit/insertInfo",
-                type: 'POST',
-                async: false,
-                contentType: 'application/json;charset=utf-8', //设置请求头信息
-                data: JSON.stringify(jsonObj),
-                success: function (res) {
-                    if (res.code == "0") {
-                        layer.confirm(res.msg, {
-                            btn: ['确定']  //按钮
-                            , icon: 6
-                        }, function () {
-                            window.parent.location.reload();    //刷新父页面
-                        });
-                    } else {
-                        layer.confirm(res.msg, {
-                            btn: ['确定']  //按钮
-                            , icon: 5
-                            , anim: 6
-                        }, function (index) {
-                            layer.close(index);
-                        });
-                    }
-                },
-                error: function (res) {
-                    layer.confirm('啊哦！访问出问题了！快找开发狗算账！', {
-                        btn: ['确定']  //按钮
-                        , icon: 5
-                        , anim: 6
-                    }, function (index) {
-                        layer.close(index);
-                    });
-                }
-            })
+            // 已登录, 弹出活动室预约弹窗
+            layer.open({
+                type: 2,
+                title: false,
+                scrollbar: false,
+                shadeClose: true,
+                closeBtn: false,
+                shade: 0.5,
+                area: ['1200px', '650px'],
+                content: `/housing/activityRoom/toUserPage?userId=${userId}`
+            });
         })
 
         /**

@@ -387,6 +387,7 @@ public class SystemController {
     /**
      * 跳转到我的评论
      *
+     * @param model
      * @return
      */
     @GetMapping("/comment/toMeComment")
@@ -397,15 +398,14 @@ public class SystemController {
     }
 
     /**
-     * 我的出入记录
+     * 跳转到出入记录
      *
      * @param model
      * @return
      */
-    @RequestMapping("/webPage/toAccessPage")
-    public ModelAndView toWebAccessPage(ModelAndView model, Integer userId) {
-        model.addObject("userId", userId);
-        model.setViewName("/webPage/userAccess");
+    @RequestMapping("/accessVisit/toDataPage")
+    public ModelAndView toAccessPage(ModelAndView model) {
+        model.setViewName("/adminPage/access/accessPage");
         return model;
     }
 
@@ -1078,25 +1078,13 @@ public class SystemController {
     }
 
     /**
-     * 跳转到出入记录
-     *
-     * @param model
-     * @return
-     */
-    @RequestMapping("/accessVisit/toDataPage")
-    public ModelAndView toAccessPage(ModelAndView model) {
-        model.setViewName("/adminPage/access/accessPage");
-        return model;
-    }
-
-    /**
      * 跳转到员工管理
      *
      * @param model
      * @return
      */
     @RequestMapping("/employee/toDataPage")
-    public ModelAndView toEmployeePage(ModelAndView model) {
+    public ModelAndView toEmployeeDataPage(ModelAndView model) {
         model.setViewName("/adminPage/employee/employeePage");
         return model;
     }
@@ -1135,10 +1123,19 @@ public class SystemController {
      * @return
      */
     @RequestMapping("/asset/statisticAnalysis")
-    public ModelAndView toStatisticAnalysisPage(ModelAndView model, Integer id) {
-//        model.addObject("obj", employeeService.selectByPrimaryKey(id));
-//        model.addObject("addUrl", "updateInfo");
-        model.setViewName("/adminPage/asset/asset");
+    public ModelAndView toStatisticAnalysisPage(ModelAndView model) {
+        model.setViewName("adminPage/asset/asset");
+        return model;
+    }
+
+    /**
+     * @Description: 跳转到图片修改页面
+     * @param model
+     * @return
+     */
+    @RequestMapping("/admin/toImgPage")
+    public ModelAndView toAdminImgPage(ModelAndView model) {
+        model.setViewName("adminPage/admin/imgPage");
         return model;
     }
 

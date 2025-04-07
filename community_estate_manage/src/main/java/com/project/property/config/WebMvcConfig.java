@@ -1,5 +1,7 @@
 package com.project.property.config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
@@ -15,6 +17,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  */
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
+
+    private static final Logger log = LoggerFactory.getLogger(WebMvcConfig.class);
 
     @Bean
     public CorsFilter corsFilter() {
@@ -60,8 +64,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
             @Override
             public void addViewControllers(ViewControllerRegistry registry) {
 //                registry.addViewController("/").setViewName("webPage/index");     //拦截 /
-                registry.addViewController("/main.html").setViewName("login");   //拦截 main.html
-                registry.addViewController("/index").setViewName("webPage/index");   //拦截 main.html
+                registry.addViewController("/index").setViewName("webPage/index");   //拦截 index
                 //设置一个视图解析器，登陆成功后跳转到 main.html，而main.html跳转的则是登陆成功的页面，这样可以防止表单重复提交
                 registry.addViewController("/main.html").setViewName("system/main");
             }
@@ -72,18 +75,23 @@ public class WebMvcConfig implements WebMvcConfigurer {
              */
             @Override
             public void addInterceptors(InterceptorRegistry registry) {
+                log.info("Configuring LoginInterceptor...");
+                String[] excludePatterns = {
+                        "/", "/admin", "/webjars/**", "/static/**", "/adminStatic/**", "/webStatic/**", "/webPage/**", "/index", "/userComplaint/insertInfo",
+                        "/userRepair/insertInfo", "/css/**", "/js/**", "/lib/**", "/images/**", "/fonts/**", "/upload/**", "/doc.html/**", "/error-404", "/error-400", "/error-500",
+                        "/favicon.ico", "/system/toMainPage", "/system/toLoginPage", "/system/loginOut", "/visit/**", "/system/toTimeOutPage", "/system/timeOut"
+                        , "/swagger-ui.html", "/swagger-ui.html/**", "/swagger-resources/**", "/findIcon", "/user/updateInfo", "/user/updateInfo"
+                        , "/carPark/getDataByPage", "/house/getDataByPage", "/house/toWebBuyPage", "/carPark/toWebBuyPage", "/userRepair/updateInfoByObject"
+                        , "/carPark/toWebCarParkPage", "/house/toWebHousePage", "/carPark/updateInfo", "/house/soldInfo", "/comment/**"
+                        , "/userComplaint/getDataByPageWeb", "/userComplaint/toFindPage", "/userComplaint/toEditUserResultPage", "/userComplaint/updateInfoByObject",
+                        "/userRepair/getDataByPageWeb", "/user/toUserEditWindow", "/notice/**", "/system/uploadImages"
+                        , "/propertyPayVisit/toPropertyPayVisitPage", "/MyPropertyChargeVisit/toPropertyChargeVisitPage", "/propertyPayVisit/getDataByPage", "/propertyChargeVisit/getDataByPage"
+                        , "/api/file/upload/*", "/carPark/charge/getDataByPage", "/activityRoom/**"
+                };
+                log.info("Excluding patterns: {}", (Object) excludePatterns); // Log patterns
                 registry.addInterceptor(new LoginInterceptor())
                         .addPathPatterns("/**")
-                        .excludePathPatterns("/", "/admin", "/webjars/**", "/static/**", "/adminStatic/**", "/webStatic/**", "/webPage/**", "/index", "/userComplaint/insertInfo",
-                                "/userRepair/insertInfo", "/css/**", "/js/**", "/lib/**", "/images/**", "/fonts/**", "/upload/**", "/doc.html/**", "/error-404", "/error-400", "/error-500",
-                                "/favicon.ico", "/system/toMainPage", "/system/toLoginPage", "/system/loginOut", "/visit/**", "/system/toTimeOutPage", "/system/timeOut"
-                                , "/swagger-ui.html", "/swagger-ui.html/**", "/swagger-resources/**", "/findIcon", "/user/updateInfo", "/user/updateInfo", "/accessVisit/insertInfo"
-                                , "/carPark/getDataByPage", "/house/getDataByPage", "/house/toWebBuyPage", "/carPark/toWebBuyPage", "/userRepair/updateInfoByObject"
-                                , "/carPark/toWebCarParkPage", "/house/toWebHousePage", "/carPark/updateInfo", "/house/soldInfo", "/comment/**"
-                                , "/userComplaint/getDataByPageWeb", "/userComplaint/toFindPage", "/userComplaint/toEditUserResultPage", "/userComplaint/updateInfoByObject",
-                                "/userRepair/getDataByPageWeb", "/accessVisit/getDataByPage", "/user/toUserEditWindow", "/notice/**", "/system/uploadImages"
-                                , "/propertyPayVisit/toPropertyPayVisitPage", "/MyPropertyChargeVisit/toPropertyChargeVisitPage", "/propertyPayVisit/getDataByPage", "/propertyChargeVisit/getDataByPage"
-                                , "/api/file/upload/*", "/carPark/charge/getDataByPage");
+                        .excludePathPatterns(excludePatterns);
             }
         };
         return webMvcConfigurer;

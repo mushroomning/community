@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>活动室预约管理</title>
+    <link rel="stylesheet" th:href="@{/adminStatic/layui/css/layui.css}">
+    <link rel="stylesheet" th:href="@{/adminStatic/css/style.css}">
+</head>
+<body>
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-body " style="padding-bottom: 0;">
+                    <form class="layui-form layui-col-space5 layui-form-pane" id="form">
+                        <!-- 根据用户名查询 -->
+                        <div class="layui-inline layui-show-xs-block layui-form-item">
+                            <label class="layui-form-label">用户名</label>
+                            <div class="layui-input-inline">
+                                <input class="layui-input" autocomplete="off" placeholder="请输入要查询的用户名" name="userName">
+                            </div>
+                        </div>
+                        <!-- 活动室类型 -->
+                        <div class="layui-inline layui-show-xs-block layui-form-item">
+                            <label class="layui-form-label">活动室类型</label>
+                            <div class="layui-input-inline">
+                                <select name="roomType">
+                                    <option value="">请选择活动室类型</option>
+                                    <option value="棋牌室">棋牌室</option>
+                                    <option value="阅览室">阅览室</option>
+                                    <option value="乒乓球室">乒乓球室</option>
+                                    <option value="台球室">台球室</option>
+                                    <option value="篮球场">篮球场</option>
+                                    <option value="足球场">足球场</option>
+                                    <option value="老年活动室">老年活动室</option>
+                                    <option value="健身房">健身房</option>
+                                </select>
+                            </div>
+                        </div>
+                        <!-- 活动室编号 -->
+                        <div class="layui-inline layui-show-xs-block layui-form-item">
+                            <label class="layui-form-label">活动室</label>
+                            <div class="layui-input-inline">
+                                <select name="roomNo">
+                                    <option value="">请选择活动室</option>
+                                    <option value="A101">A101</option>
+                                    <option value="A102">A102</option>
+                                    <option value="B201">B201</option>
+                                    <option value="B202">B202</option>
+                                    <option value="B203">B203</option>
+                                    <option value="C101">C101</option>
+                                    <option value="D101">D101</option>
+                                    <option value="D102">D102</option>
+                                    <option value="E101">E101</option>
+                                    <option value="E102">E102</option>
+                                    <option value="E103">E103</option>
+                                </select>
+                            </div>
+                        </div>
+                        <!-- 预约状态 -->
+                        <div class="layui-inline layui-show-xs-block layui-form-item">
+                            <label class="layui-form-label">状态</label>
+                            <div class="layui-input-inline">
+                                <select name="status">
+                                    <option value="">请选择状态</option>
+                                    <option value="0">待审核</option>
+                                    <option value="1">已通过</option>
+                                    <option value="2">已拒绝</option>
+                                </select>
+                            </div>
+                        </div>
+                        <!-- 日期范围 -->
+                        <div class="layui-inline layui-show-xs-block layui-form-item">
+                            <label class="layui-form-label">预约日期</label>
+                            <div class="layui-input-inline" style="width: 280px">
+                                <input id="createDate" class="layui-input" autocomplete="off" placeholder="请选择"
+                                       name="createDate">
+                            </div>
+                        </div>
+
+                        <div class="layui-inline layui-show-xs-block">
+                            <button class="layui-btn layui-btn-normal" id="searchBtn" type="button" lay-filter="sreach">
+                                <i class="layui-icon">&#xe615;</i>
+                            </button>
+                            <input class="layui-btn layui-btn-normal layui-icon" type="reset" value="&#xe669;"/>
+                        </div>
+                    </form>
+                </div>
+                <div class="layui-card-body ">
+                    <table id="listInfo" lay-filter="listInfo"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 表格操作列 -->
+<script type="text/html" id="tableBar">
+    {{# if(d.status == 0){ }}
+    <a class="layui-btn layui-btn-xs" lay-event="pass">通过</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="reject">拒绝</a>
+    {{# } }}
+</script>
+
+<!-- 状态模板 -->
+<script type="text/html" id="statusTpl">
+    {{# if(d.status == 0){ }}
+    <span class="layui-badge layui-bg-orange">待审核</span>
+    {{# } else if(d.status == 1){ }}
+    <span class="layui-badge layui-bg-green">已通过</span>
+    {{# } else if(d.status == 2){ }}
+    <span class="layui-badge layui-bg-gray">已拒绝</span>
+    {{# } }}
+</script>
+
+<script th:src="@{/adminStatic/layui/layui.js}"></script>
+<script th:inline="none">
+    layui.use(['table', 'layer', 'form', 'laydate'], function () {
+        var table = layui.table,
+            layer = layui.layer,
+            form = layui.form,
+            laydate = layui.laydate;
+
+        //日期范围
+        laydate.render({
+            elem: '#createDate',
+            range: true
+        });
+
+        //第一个实例
+        table.render({
+            elem: '#listInfo'
+            , height: 'full-115'
+            , url: '/housing/activityRoom/getDataByPage'
+            , defaultToolbar: ['filter']
+            , loading: true
+            , limit: 20
+            , title: '活动室预约信息'
+            , toolbar: '#toolbarDemo'
+            , page: {
+                layout: ['limit', 'count', 'prev', 'page', 'next', 'skip', 'refresh']
+                , groups: 5
+                , theme: '#1E9FFF'
+            }
+            , cols: [[
+                {type: 'checkbox'}
+                , {type: 'numbers', title: '序号', width: 60}
+                , {field: 'id', title: '主键标识', width: 120, hide: true}
+                , {field: 'userName', title: '姓名'}
+                , {field: 'phone', title: '联系电话'}
+                , {field: 'roomType', title: '活动室类型'}
+                , {field: 'roomNo', title: '活动室'}
+                , {field: 'bookingDate', title: '预约日期'}
+                , {field: 'timeSlot', title: '时间段'}
+                , {field: 'peopleCount', title: '预约人数'}
+                , {field: 'activityTheme', title: '活动主题'}
+                , {field: 'createDate', title: '申请时间'}
+                , {field: 'status', title: '状态', templet: '#statusTpl'}
+                , {field: 'desc', title: '备注信息'}
+                , {title: '操作', toolbar: '#tableBar', width: 150}
+            ]]
+        });
+
+        //头工具栏事件
+        table.on('toolbar(listInfo)', function (obj) {
+            var checkStatus = table.checkStatus(obj.config.id);
+            var data = checkStatus.data;
+            var selectCount = data.length;
+            var dataId = getIds(data);
+            switch (obj.event) {
+                case 'del':
+                    deleteInfo(selectCount, dataId, "deleteInfo?ids=" + dataId);
+                    break;
+            }
+        });
+
+        //监听行工具事件
+        table.on('tool(listInfo)', function (obj) {
+            var data = obj.data;
+            if (obj.event === 'pass') {
+                layer.confirm('确定通过该预约申请？', function (index) {
+                    $.ajax({
+                        url: '/housing/activityRoom/review',
+                        type: 'POST',
+                        data: {
+                            id: data.id,
+                            status: '1'
+                        },
+                        success: function (res) {
+                            if (res.code == 0) {
+                                layer.msg('操作成功', {icon: 1});
+                                table.reload('listInfo');
+                            } else {
+                                layer.msg(res.msg, {icon: 2});
+                            }
+                        }
+                    });
+                    layer.close(index);
+                });
+            } else if (obj.event === 'reject') {
+                layer.confirm('确定拒绝该预约申请？', function (index) {
+                    $.ajax({
+                        url: '/housing/activityRoom/review',
+                        type: 'POST',
+                        data: {
+                            id: data.id,
+                            status: '2'
+                        },
+                        success: function (res) {
+                            if (res.code == 0) {
+                                layer.msg('操作成功', {icon: 1});
+                                table.reload('listInfo');
+                            } else {
+                                layer.msg(res.msg, {icon: 2});
+                            }
+                        }
+                    });
+                    layer.close(index);
+                });
+            }
+        });
+
+        // 搜索按钮点击事件
+        $('#searchBtn').click(function () {
+            var userName = $("input[name='userName']").val();
+            var roomType = $("select[name='roomType']").val();
+            var roomNo = $("select[name='roomNo']").val();
+            var status = $("select[name='status']").val();
+            var createDate = $("input[name='createDate']").val();
+            var url = "/housing/activityRoom/getDataByPage";
+            url += "?userName=" + userName + "&roomType=" + roomType + "&roomNo=" + roomNo + "&status=" + status;
+            if (createDate) {
+                url += "&createDate=" + createDate;
+            }
+            loadFunction(url);
+        });
+
+        /**
+         * 加载表格方法
+         * @param url
+         */
+        function loadFunction(url) {
+            table.reload('listInfo', {
+                url: url
+            });
+        }
+
+        /**
+         * 获取选中行的ID
+         * @param data
+         * @returns {string}
+         */
+        function getIds(data) {
+            var ids = "";
+            for (var i = 0; i < data.length; i++) {
+                ids += data[i].id + ",";
+            }
+            return ids.substring(0, ids.length - 1);
+        }
+
+        /**
+         * 删除信息
+         * @param selectCount
+         * @param dataId
+         * @param url
+         */
+        function deleteInfo(selectCount, dataId, url) {
+            if (selectCount == 0) {
+                layer.msg('请选择要删除的信息！', {icon: 2});
+                return;
+            }
+            layer.confirm('确定要删除选中的信息吗？', function (index) {
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                    success: function (res) {
+                        if (res.code == 0) {
+                            layer.msg('删除成功！', {icon: 1});
+                            table.reload('listInfo');
+                        } else {
+                            layer.msg(res.msg, {icon: 2});
+                        }
+                    }
+                });
+                layer.close(index);
+            });
+        }
+    });
+</script>
+</body>
+</html> 

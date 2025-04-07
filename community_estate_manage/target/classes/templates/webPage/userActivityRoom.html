@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>活动室预约</title>
+    <link rel="stylesheet" th:href="@{/webStatic/layui/css/layui.css}">
+    <link rel="stylesheet" th:href="@{/webStatic/css/style.css}">
+    <script th:src="@{/webStatic/js/jquery.min.js}"></script>
+</head>
+<body>
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-header">活动室预约</div>
+                <div class="layui-card-body">
+                    <!-- 错误提示 -->
+                    <div class="layui-form-item" th:if="${param.error != null}">
+                        <div class="layui-input-block">
+                            <div class="layui-bg-red" style="padding: 10px;" th:if="${param.error[0] == 'submit_failed'}">
+                                预约申请提交失败！请稍后重试！
+                            </div>
+                            <div class="layui-bg-red" style="padding: 10px;" th:if="${param.error[0] == 'exception'}">
+                                操作出现异常，请联系管理员！
+                            </div>
+                        </div>
+                    </div>
+                    <form class="layui-form" lay-filter="form">
+                        <input type="hidden" name="userId" th:value="${userId != null ? userId : param.userId}">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">姓名</label>
+                            <div class="layui-input-block">
+                                <input type="text" name="userName" required lay-verify="required" placeholder="请输入姓名" autocomplete="off" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">手机号</label>
+                            <div class="layui-input-block">
+                                <input type="text" name="phone" required lay-verify="required|phone" placeholder="请输入手机号" autocomplete="off" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">活动室类型</label>
+                            <div class="layui-input-block">
+                                <select name="roomType" lay-verify="required" lay-filter="roomType">
+                                    <option value="">请选择活动室类型</option>
+                                    <option value="棋牌室">棋牌室</option>
+                                    <option value="阅览室">阅览室</option>
+                                    <option value="乒乓球室">乒乓球室</option>
+                                    <option value="台球室">台球室</option>
+                                    <option value="篮球场">篮球场</option>
+                                    <option value="足球场">足球场</option>
+                                    <option value="老年活动室">老年活动室</option>
+                                    <option value="健身房">健身房</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">活动室</label>
+                            <div class="layui-input-block">
+                                <select name="roomNo" lay-verify="required" id="roomNoSelect">
+                                    <option value="">请先选择活动室类型</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">预约日期</label>
+                            <div class="layui-input-block">
+                                <input type="text" name="bookingDate" id="bookingDate" required lay-verify="required" placeholder="请选择预约日期" autocomplete="off" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">时间段</label>
+                            <div class="layui-input-block">
+                                <select name="timeSlot" lay-verify="required">
+                                    <option value="">请选择时间段</option>
+                                    <option value="09:00-10:00">09:00-10:00</option>
+                                    <option value="10:00-11:00">10:00-11:00</option>
+                                    <option value="11:00-12:00">11:00-12:00</option>
+                                    <option value="14:00-15:00">14:00-15:00</option>
+                                    <option value="15:00-16:00">15:00-16:00</option>
+                                    <option value="16:00-17:00">16:00-17:00</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">预约人数</label>
+                            <div class="layui-input-block">
+                                <input type="number" name="peopleCount" required lay-verify="required|number" placeholder="请输入预约人数" autocomplete="off" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">活动主题</label>
+                            <div class="layui-input-block">
+                                <input type="text" name="activityTheme" required lay-verify="required" placeholder="请输入活动主题" autocomplete="off" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-form-item layui-form-text">
+                            <label class="layui-form-label">备注</label>
+                            <div class="layui-input-block">
+                                <textarea name="desc" placeholder="请输入备注信息" class="layui-textarea"></textarea>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <div class="layui-input-block">
+                                <button class="layui-btn" lay-submit lay-filter="form">提交预约</button>
+                                <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/webStatic/layui/layui.js}"></script>
+<script>
+    layui.use(['form', 'laydate'], function(){
+        var form = layui.form;
+        var laydate = layui.laydate;
+        
+        //日期选择器
+        laydate.render({
+            elem: '#bookingDate',
+            min: 0 // 只能选择今天及以后的日期
+        });
+        
+        // 活动室类型与房间号对应关系
+        var roomMapping = {
+            '棋牌室': ['A101', 'A102'],
+            '阅览室': ['B201'],
+            '乒乓球室': ['B202', 'B203'],
+            '台球室': ['C101'],
+            '篮球场': ['D101'],
+            '足球场': ['D102'],
+            '老年活动室': ['E101'],
+            '健身房': ['E102', 'E103']
+        };
+        
+        // 监听活动室类型选择
+        form.on('select(roomType)', function(data){
+            var roomType = data.value;
+            var roomNoSelect = document.getElementById('roomNoSelect');
+            
+            // 清空现有选项
+            roomNoSelect.innerHTML = '<option value="">请选择活动室</option>';
+            
+            // 根据选择的活动室类型添加对应的房间号
+            if(roomType && roomMapping[roomType]) {
+                roomMapping[roomType].forEach(function(roomNo) {
+                    var option = document.createElement('option');
+                    option.value = roomNo;
+                    option.text = roomNo;
+                    roomNoSelect.appendChild(option);
+                });
+            }
+            
+            // 重新渲染表单
+            form.render('select');
+        });
+        
+        //监听提交
+        form.on('submit(form)', function(data){
+            $.ajax({
+                url: '/housing/activityRoom/insertInfo',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data.field),
+                success: function(res){
+                    if(res.code == 0){
+                        layer.msg('预约申请提交成功', {icon: 1});
+                        setTimeout(function(){
+                            window.location.reload();
+                        }, 1000);
+                    }else{
+                        layer.msg(res.msg, {icon: 2});
+                    }
+                }
+            });
+            return false;
+        });
+    });
+</script>
+</body>
+</html> 
