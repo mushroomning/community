@@ -23,6 +23,60 @@
     <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
     <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
+    <style>
+        /* 修改顶部容器背景色 */
+        .container {
+            background-color: #502323 !important; /* 棕色 */
+        }
+        /* 修改左侧导航背景色 */
+        .left-nav {
+            background-color: #502323 !important; /* 棕色 */
+        }
+        /* 可能需要调整顶部 logo 和右侧导航项的文字颜色以确保可见性 */
+        .container .logo a,
+        .container .layui-nav a {
+            color: white !important; /* 例如改为白色 */
+        }
+        /* 可能需要调整左侧用户名颜色 */
+        #head_div > div:last-child {
+            color: rgba(255, 255, 255, 0.85) !important; /* 调整透明度或改为不透明白色 */
+        }
+        /* 可能需要调整左侧菜单项文字颜色 */
+        #nav > li > a cite,
+        #nav > li > ul > li > a cite {
+            color: white !important; /* 例如改为白色 */
+        }
+        #nav > li > a i.left-nav-li,
+        #nav > li > ul > li > a i.left-nav-li,
+        #nav > li > a i.nav_right {
+            color: rgba(255, 255, 255, 0.8) !important; /* 调整图标颜色 */
+        }
+
+        /* Style for the currently active/selected left navigation item */
+        #nav li a.active, /* If xadmin adds .active to the link */
+        #nav li.layui-this > a, /* If layui adds .layui-this to the li */
+        #nav ul.sub-menu li a.active, /* Submenu link */
+        #nav ul.sub-menu li.layui-this > a /* Submenu li */
+        {
+            background-color: #8B4513 !important; /* Lighter brown background */
+            color: white !important; /* Ensure text is white */
+            transition: none !important; /* Disable transitions */
+        }
+
+        /* Ensure icons and text within the active link are styled correctly */
+        #nav li a.active cite,
+        #nav li.layui-this > a cite,
+        #nav ul.sub-menu li a.active cite,
+        #nav ul.sub-menu li.layui-this > a cite {
+            color: white !important;
+        }
+        #nav li a.active i,
+        #nav li.layui-this > a i,
+        #nav ul.sub-menu li a.active i,
+        #nav ul.sub-menu li.layui-this > a i {
+            color: rgba(255, 255, 255, 0.9) !important; /* Slightly lighter icon */
+        }
+    </style>
     <script>
 
         // 是否开启刷新记忆tab功能

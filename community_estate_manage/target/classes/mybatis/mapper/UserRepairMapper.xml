@@ -139,6 +139,12 @@
             <if test="feedbackMsg != null and feedbackMsg != ''">
                 feedback_msg = #{feedbackMsg},
             </if>
+            <if test="score != null">
+                score = #{score,jdbcType=VARCHAR},
+            </if>
+            <if test="degree != null">
+                degree = #{degree,jdbcType=VARCHAR},
+            </if>
         </set>
         where id = #{id}
     </update>

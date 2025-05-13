@@ -98,6 +98,12 @@
       <if test="noticeId != null">
         notice_id = #{noticeId,jdbcType=INTEGER},
       </if>
+      <if test="score != null">
+        score = #{score,jdbcType=VARCHAR},
+      </if>
+      <if test="degree != null">
+        degree = #{degree,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>

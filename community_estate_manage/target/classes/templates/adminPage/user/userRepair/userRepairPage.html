@@ -259,12 +259,27 @@
                         success: function (rollData) {
                             layer.close(index)
                             if (rollData.code == "0") {
-                                layer.confirm(rollData.msg, {
-                                    btn: ['确定']  //按钮
-                                    , icon: 6
-                                }, function () {
-                                    window.location.reload();    //刷新父页面
-                                });
+                                try {
+                                    // 尝试解析返回的情感分析数据
+                                    var analysisData = JSON.parse(rollData.msg.substr(rollData.msg.indexOf('{')));
+                                    var msgText = "情感分析完成!<br>积极评价: " + analysisData.positive + 
+                                                 "<br>消极评价: " + analysisData.negative + 
+                                                 "<br>中性评价: " + analysisData.neutral;
+                                    
+                                    layer.confirm(msgText, {
+                                        btn: ['确定']  //按钮
+                                        , icon: 6
+                                    }, function () {
+                                        window.location.reload();    //刷新父页面
+                                    });
+                                } catch(e) {
+                                    layer.confirm(rollData.msg, {
+                                        btn: ['确定']  //按钮
+                                        , icon: 6
+                                    }, function () {
+                                        window.location.reload();    //刷新父页面
+                                    });
+                                }
                             } else {
                                 layer.confirm(rollData.msg, {
                                     btn: ['确定']  //按钮

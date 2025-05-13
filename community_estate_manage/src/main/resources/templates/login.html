@@ -16,6 +16,33 @@
       <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
       <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
+    <style>
+        /* 修改登录框背景和边框 */
+        .login {
+            /* background-color: #f0f8ff; */ /* 使用稍微柔和的背景色，如果需要 */
+            border-top: 5px solid #87CEEB; /* 顶部边框改为浅蓝色 */
+        }
+        /* 修改标题背景色 */
+        .login .message {
+            background-color: #87CEEB; /* 背景色改为浅蓝色 */
+            border-bottom: 1px solid #87CEEB; /* 底部边框也协调一下 */
+        }
+        /* 修改登录按钮背景色 */
+        .login input[type='submit'] {
+            background-color: #87CEEB !important; /* 背景色改为浅蓝色，用 !important 提高优先级 */
+            border: 1px solid #87CEEB;
+        }
+        /* 修改前台首页链接背景色 (假设它有背景色) */
+        .login a[target='_blank'] {
+            background-color: #87CEEB !important; /* 背景色改为浅蓝色 */
+            border: 1px solid #87CEEB;
+            color: white !important; /* 可能需要调整文字颜色 */
+            display: block; /* 让它像按钮一样 */
+            padding: 9px 15px; /* 模仿按钮内边距 */
+            text-align: center; /* 文字居中 */
+            line-height: normal; /* 移除可能的继承行高 */
+        }
+    </style>
 </head>
 <body class="login-bg">
     

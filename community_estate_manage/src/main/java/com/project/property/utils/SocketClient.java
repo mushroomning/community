@@ -37,6 +37,10 @@ public class SocketClient {
         byte[] buffer = new byte[1024 * 2];
         while (true) {
             int len = inputStream.read(buffer);
+            if (len == -1) {
+                // 连接已关闭
+                break;
+            }
             arrayOutputStream.write(buffer, 0, len);
 
             if (inputStream.available() == 0) {
@@ -44,8 +48,7 @@ public class SocketClient {
             }
         }
 
-//        return arrayOutputStream.toString(StandardCharsets.UTF_8);
-        return null;
+        return new String(arrayOutputStream.toByteArray(), StandardCharsets.UTF_8);
     }
 
     public void close() throws IOException {

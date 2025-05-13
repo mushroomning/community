@@ -22,6 +22,10 @@
     <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
     <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
+    <script th:inline="javascript">
+        /* 全局变量，存储应用上下文路径 */
+        var contextPath = /*[[@{/}]]*/ '/';
+    </script>
     <style>
         .layui-form-item {
             margin-bottom: 0;
@@ -164,7 +168,7 @@
                     break;
                 case 'analysis':
                     // 调用分析
-                    analysisReq("emotion/analysis?type=1");
+                    analysisReq(contextPath + "comment/emotion/analysis?type=1");
                     break;
             }
         });
@@ -178,7 +182,7 @@
             table.render({
                 elem: '#listInfo'
                 , height: 'full-115'
-                , url: url //数据接口
+                , url: contextPath + "comment/" + url //数据接口
                 , defaultToolbar: ['filter']
                 , loading: true
                 , limit: 20
@@ -220,6 +224,7 @@
          * 情感分析请求
          */
         function analysisReq(url) {
+            console.log("准备发送情感分析请求到:", url);
             layer.confirm('是否执行数据分析?', {icon: 3, title: '提示'}, function (i) {
                 layer.close(i);
                 const index = layer.load();
@@ -227,40 +232,77 @@
                     url: url,
                     type: 'POST',
                     async: true,
+                    dataType: 'json',
                     contentType: 'application/json;charset=utf-8', //设置请求头信息
                     success: function (rollData) {
-                        layer.close(index)
-                        if (rollData.code == "0") {
-                            layer.confirm(rollData.msg, {
-                                btn: ['确定']  //按钮
-                                , icon: 6
-                            }, function () {
-                                window.location.reload();    //刷新父页面
-                            });
+                        console.log("情感分析请求成功，返回数据:", rollData);
+                        layer.close(index);
+                        
+                        if (rollData.code == 0) {  // 注意这里使用数值比较而不是字符串
+                            try {
+                                // 直接解析msg字段中的JSON
+                                var analysisData = JSON.parse(rollData.msg);
+                                var msgText = "情感分析完成！<br>积极评价: " + analysisData.positive + 
+                                             "<br>消极评价: " + analysisData.negative + 
+                                             "<br>中性评价: " + analysisData.neutral;
+                                
+                                layer.confirm(msgText, {
+                                    btn: ['确定']  //按钮
+                                    , icon: 6
+                                }, function (confirmIndex) {
+                                    // 关闭确认弹窗
+                                    layer.close(confirmIndex);
+                                    
+                                    console.log("开始刷新表格和图表...");
+                                    
+                                    // 先刷新表格数据
+                                    table.reload('listInfo', {
+                                        url: contextPath + "comment/getDataByPage",
+                                        done: function(res) {
+                                            console.log("表格刷新完成:", res);
+                                            
+                                            // 表格加载完成后再重新加载图表
+                                            setTimeout(function() {
+                                                loadFunction2("statistic");
+                                            }, 500);
+                                        }
+                                    });
+                                });
+                            } catch(e) {
+                                console.error("解析JSON失败:", e, "原始数据:", rollData.msg);
+                                layer.confirm("情感分析完成，请刷新查看结果", {
+                                    btn: ['确定']  //按钮
+                                    , icon: 6
+                                }, function (confirmIndex) {
+                                    // 关闭确认弹窗
+                                    layer.close(confirmIndex);
+                                    // 直接刷新页面
+                                    window.location.reload();
+                                });
+                            }
                         } else {
-                            layer.confirm(rollData.msg, {
+                            layer.confirm(rollData.msg || "操作失败", {
                                 btn: ['确定']  //按钮
                                 , icon: 5
                                 , anim: 6
                             }, function (index) {
-                                lock = true;
                                 layer.close(index);
                             });
                         }
                     },
                     error: function (res) {
-                        layer.close(index)
+                        console.error("情感分析请求失败:", res);
+                        layer.close(index);
                         layer.confirm('啊哦！访问出问题了！请联系管理员！', {
                             btn: ['确定']  //按钮
                             , icon: 5
                             , anim: 6
                         }, function (index) {
-                            lock = true;
                             layer.close(index);
                         });
                     }
-                })
-            })
+                });
+            });
         }
 
         /**
@@ -270,15 +312,80 @@
         function loadFunction2(url) {
             let loading = layer.load();
             $.ajax({
-                url: url,
+                url: contextPath + "comment/" + url,
                 dataType: 'json',
                 type: 'get',
                 success: function (result) {
+                    console.log("加载统计图数据:", result);
                     layer.close(loading);
-                    if (result.code == "0") {
-                        missionProgressOption.series[0].data = result.data['chart1'];
+                    if (result.code == 0 || result.code == "0") {
+                        if (result.data && result.data['chart1'] && result.data['chart1'].length > 0) {
+                            console.log("加载图表数据:", result.data['chart1']);
+                            
+                            // 完全重新配置图表选项
+                            let newOption = {
+                                title: {
+                                    text: '公告评论-情感分析统计图',
+                                    left: 'left',
+                                    textStyle: {
+                                        color: '#235894'
+                                    }
+                                },
+                                legend: {
+                                    orient: 'vertical',
+                                    left: 'right'
+                                },
+                                tooltip: {
+                                    trigger: 'item',
+                                    formatter: '{a} <br/>{b}: {c} ({d}%)'
+                                },
+                                series: [
+                                    {
+                                        name: '满意度：',
+                                        type: 'pie',
+                                        radius: [50, 200],
+                                        center: ['50%', '50%'],
+                                        roseType: 'area',
+                                        itemStyle: {
+                                            borderRadius: 8
+                                        },
+                                        data: result.data['chart1'],
+                                        emphasis: {
+                                            itemStyle: {
+                                                shadowBlur: 10,
+                                                shadowOffsetX: 0,
+                                                shadowColor: 'rgba(0, 0, 0, 0.5)'
+                                            }
+                                        }
+                                    }
+                                ]
+                            };
+                            
+                            // 销毁旧图表实例并创建新的
+                            missionProgressChart.dispose();
+                            missionProgressChart = echarts.init(document.getElementById('mission_progress'));
+                            missionProgressChart.setOption(newOption);
+                            
+                            console.log("图表渲染完成");
+                        } else {
+                            console.log("统计图数据为空");
+                            missionProgressOption.series[0].data = [];
+                            
+                            // 销毁旧图表实例并创建新的
+                            missionProgressChart.dispose();
+                            missionProgressChart = echarts.init(document.getElementById('mission_progress'));
+                            missionProgressChart.setOption(missionProgressOption);
+                            
+                            layer.msg('暂无图表数据');
+                        }
                     } else {
                         missionProgressOption.series[0].data = [];
+                        
+                        // 销毁旧图表实例并创建新的
+                        missionProgressChart.dispose();
+                        missionProgressChart = echarts.init(document.getElementById('mission_progress'));
+                        missionProgressChart.setOption(missionProgressOption);
+                        
                         layer.confirm('暂无数据可分析！', {
                             btn: ['确定']  //按钮
                             , icon: 5
@@ -287,11 +394,13 @@
                             layer.close(index);
                         });
                     }
-
-                    // 渲染
-                    missionProgressChart.setOption(missionProgressOption);
+                },
+                error: function(xhr, status, error) {
+                    console.error("加载统计图数据失败:", error);
+                    layer.close(loading);
+                    layer.msg('加载统计图数据失败');
                 }
-            })
+            });
         }
 
         // 图表 size 自适应
